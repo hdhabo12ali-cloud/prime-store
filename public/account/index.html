@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>إعدادات الحساب — Prime Store</title>
+<link href="../assets/favicon.gif" rel="icon" type="image/gif"/>
+<link rel="stylesheet" href="assets/account.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="/"><img alt="" src="../assets/prime-core-mark.png"/><span>PRIME<small>STORE</small></span></a>
+  <a class="btn-ghost" href="/">الرئيسية</a>
+</header>
+
+<main>
+  <div class="loading-state" data-loading="">جارٍ التحميل…</div>
+
+  <div class="logged-out" data-logged-out="" hidden="">
+    <p>لازم تسجّل دخول عشان تشوف إعدادات حسابك.</p>
+    <a class="btn-primary" href="/api/auth/discord">تسجيل الدخول عبر Discord</a>
+  </div>
+
+  <div class="account-panel" data-account-panel="" hidden="">
+    <div class="account-head">
+      <img alt="" data-avatar="" src=""/>
+      <div>
+        <h1 data-username="">—</h1>
+        <p data-provider-line="">—</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>اسم العرض (يظهر بمشاريعك وتقديماتك)</label>
+      <input data-display-name-input="" placeholder="اكتب اسم يظهر للآخرين" type="text"/>
+    </div>
+    <button class="btn-primary" data-save-btn="" type="button">حفظ التغييرات</button>
+    <p class="saved-msg" data-saved-msg=""></p>
+
+    <div class="danger-zone">
+      <a class="btn-ghost" href="/api/auth/logout">تسجيل الخروج</a>
+    </div>
+  </div>
+</main>
+
+<script src="assets/account.js"></script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<link href="../assets/favicon.gif" rel="icon" type="image/gif"/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>لوحة تحكم Prime Store</title>
+<link rel="stylesheet" href="/admin/assets/admin.css" />
+</head>
+<body>
+
+<!-- Login screen -->
+<div class="login-shell" id="loginShell">
+  <div class="login-card">
+    <div class="login-brand"><span class="dot"></span><span>PRIME<small>STORE</small></span></div>
+    <h1>تسجيل الدخول للوحة التحكم</h1>
+    <p class="sub">سجّل دخولك بحساب الديسكورد المصرّح له بإدارة المتجر.</p>
+    <p class="error-msg" id="loginError"></p>
+    <a class="btn btn-discord" href="/admin/api/auth/discord" id="discordLoginBtn">
+      <svg class="discord-mark" width="20" height="20" viewBox="0 0 127.14 96.36" aria-hidden="true">
+        <path fill="currentColor" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+      </svg>
+      <span>تسجيل الدخول عبر Discord</span>
+    </a>
+    <p class="hint">دخولك محصور بمعرّفات Discord المضافة في متغير <code class="inline">ADMIN_DISCORD_IDS</code> على السيرفر.</p>
+  </div>
+</div>
+
+<!-- App shell -->
+<div class="app-shell" id="appShell">
+  <aside class="sidebar">
+    <div class="brand"><img alt="" src="../assets/prime-core-mark.png" style="width:20px;height:18px;object-fit:contain"/><span>PRIME<small>STORE</small></span></div>
+    <button class="nav-item active" data-view="overview"><svg class="ni" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z"/></svg><span>نظرة عامة</span></button>
+    <button class="nav-item" data-view="packages"><svg class="ni" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5V8Zm-9-3.31L18.24 8 12 11.31 5.76 8 12 4.69ZM5 9.87l6 3.33v6.93l-6-3.33V9.87Zm8 10.26v-6.93l6-3.33v6.93l-6 3.33Z"/></svg><span>الباكجات</span></button>
+    <button class="nav-item" data-view="products"><svg class="ni" viewBox="0 0 24 24"><path d="M20 6h-2.18A3 3 0 0 0 15 4H9a3 3 0 0 0-2.82 2H4a1 1 0 0 0 0 2h1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8h1a1 1 0 0 0 0-2ZM9 6h6a1 1 0 0 1 1 1H8a1 1 0 0 1 1-1Zm8 12H7V8h10v10Z"/></svg><span>المنتجات</span></button>
+    <button class="nav-item" data-view="plans"><svg class="ni" viewBox="0 0 24 24"><path d="M12 2 1 21h22L12 2Zm0 4.7 6.9 12.3H5.1L12 6.7ZM11 10v4h2v-4h-2Zm0 5v2h2v-2h-2Z"/></svg><span>الخطط (Plans)</span></button>
+    <button class="nav-item" data-view="free"><svg class="ni" viewBox="0 0 24 24"><path d="M12 2 2 7l10 5 10-5-10-5Zm0 7L4.5 5.5 12 9Zm-8 2.18v6.36L12 22l8-4.46v-6.36l-8 4.46-8-4.46Z"/></svg><span>مجاني (Free)</span></button>
+    <button class="nav-item" data-view="banners"><svg class="ni" viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm1 2v7h14V7H5Zm2 9h10v2H7v-2ZM7.5 9.5A1.5 1.5 0 1 1 6 11a1.5 1.5 0 0 1 1.5-1.5ZM9 13l2.5-2.5L14 13l3-3 2 2V15H9v-2Z"/></svg><span>الشعارات (Banners)</span></button>
+    <button class="nav-item" data-view="applications"><svg class="ni" viewBox="0 0 24 24"><path d="M9 12h6M9 16h4M7 3h10a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2V5a2 2 0 0 1 2-2Z"/></svg><span>التقديمات</span></button>
+    <button class="nav-item" data-view="ai"><svg class="ni" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2v1.06A6 6 0 0 1 18 11v1h1a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-1a6 6 0 0 1-6 5H10a6 6 0 0 1-6-5H3a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h1v-1a6 6 0 0 1 4-5.66V4a2 2 0 0 1 2-2Zm-3 9a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm6 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg><span>المساعد الذكي</span></button>
+    <button class="nav-item" data-view="settings"><svg class="ni" viewBox="0 0 24 24"><path d="M19.14 12.94a7.14 7.14 0 0 0 .06-.94 7.14 7.14 0 0 0-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.3 7.3 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54a7.3 7.3 0 0 0-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.61 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.14 7.14 0 0 0 0 1.88l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.4 1.05.71 1.63.94l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54c.58-.23 1.13-.54 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64ZM12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5Z"/></svg><span>الإعدادات</span></button>
+    <button class="nav-item" data-view="api"><svg class="ni" viewBox="0 0 24 24"><path d="m9.4 16.6-4-4.6 4-4.6L8 6l-5 6 5 6ZM14.6 16.6 19 12l-5-6-1.4 1.4 4 4.6-4 4.6Z"/></svg><span>API والبوت</span></button>
+    <div class="sidebar-footer">
+      <div class="user" id="currentUser"></div>
+      <button class="btn btn-ghost btn-sm" id="logoutBtn" style="width:100%">تسجيل الخروج</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- Overview -->
+    <section class="view active" id="view-overview">
+      <div class="view-head">
+        <div>
+          <h2>نظرة عامة</h2>
+          <p>ملخص سريع عن المتجر.</p>
+        </div>
+      </div>
+      <div class="cards-row">
+        <div class="stat-card"><div class="n" id="statPackages">—</div><div class="l">باكج</div></div>
+        <div class="stat-card"><div class="n" id="statProducts">—</div><div class="l">منتج</div></div>
+        <div class="stat-card"><div class="n" id="statKeys">—</div><div class="l">مفتاح API نشط</div></div>
+        <div class="stat-card"><div class="n" id="statFree">—</div><div class="l">بوت مجاني</div></div>
+        <div class="stat-card"><div class="n" id="statPlans">—</div><div class="l">خطة اشتراك</div></div>
+        <div class="stat-card"><div class="n" id="statBanners">—</div><div class="l">شعار نشط</div></div>
+      </div>
+      <div class="panel">
+        <h3>رابط الديسكورد الحالي</h3>
+        <p class="desc">هذا هو الرابط الظاهر في كل أزرار الموقع.</p>
+        <div class="copy-row">
+          <span class="mono" id="overviewDiscordLink">—</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Packages -->
+    <section class="view" id="view-packages">
+      <div class="view-head">
+        <div>
+          <h2>الباكجات</h2>
+          <p>الباكجات الظاهرة في قسم "Packages" بالموقع.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" id="addPackageBtn">+ إضافة باكج</button>
+      </div>
+      <div class="panel">
+        <div class="toolbar">
+          <input type="search" id="packagesSearch" placeholder="بحث بالاسم أو المعرف..." />
+        </div>
+        <table>
+          <thead><tr><th>المعرف</th><th>الاسم</th><th>الأسعار</th><th></th></tr></thead>
+          <tbody id="packagesTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Products -->
+    <section class="view" id="view-products">
+      <div class="view-head">
+        <div>
+          <h2>المنتجات</h2>
+          <p>المنتجات الظاهرة في قسم "Products" بالموقع.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" id="addProductBtn">+ إضافة منتج</button>
+      </div>
+      <div class="panel">
+        <div class="toolbar">
+          <input type="search" id="productsSearch" placeholder="بحث بالاسم أو المعرف..." />
+        </div>
+        <table>
+          <thead><tr><th>المعرف</th><th>الاسم</th><th>السعر</th><th></th></tr></thead>
+          <tbody id="productsTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Plans -->
+    <section class="view" id="view-plans">
+      <div class="view-head">
+        <div>
+          <h2>الخطط (Plans)</h2>
+          <p>خطط الاشتراك الظاهرة في قسم "Plans" بالموقع — عادة 3 خطط بأسعار مختلفة.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" id="addPlanBtn">+ إضافة خطة</button>
+      </div>
+      <div class="panel">
+        <table>
+          <thead><tr><th>المعرف</th><th>الاسم</th><th>السعر</th><th>مميزة؟</th><th></th></tr></thead>
+          <tbody id="plansTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Free bots -->
+    <section class="view" id="view-free">
+      <div class="view-head">
+        <div>
+          <h2>مجاني (Free)</h2>
+          <p>بوتات مجانية تظهر في قسم "Free" بالموقع — صور، فيديو، ورابط تحميل مباشر.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" id="addFreeBtn">+ إضافة بوت مجاني</button>
+      </div>
+      <div class="panel">
+        <div class="toolbar">
+          <input type="search" id="freeSearch" placeholder="بحث بالاسم..." />
+        </div>
+        <table>
+          <thead><tr><th>الاسم</th><th>الوصف</th><th>الوسائط</th><th></th></tr></thead>
+          <tbody id="freeTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Banners -->
+    <section class="view" id="view-banners">
+      <div class="view-head">
+        <div>
+          <h2>الشعارات (Banners)</h2>
+          <p>بنرات/شعارات تظهر بشريط ترويجي بالموقع الرئيسي. حط رابط صورة مرفوعة (Supabase Storage، Imgur، أي رابط مباشر).</p>
+        </div>
+        <button class="btn btn-primary btn-sm" id="addBannerBtn">+ إضافة شعار</button>
+      </div>
+      <div class="panel">
+        <table>
+          <thead><tr><th>المعاينة</th><th>العنوان</th><th>مفعّل؟</th><th></th></tr></thead>
+          <tbody id="bannersTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Team applications -->
+    <section class="view" id="view-applications">
+      <div class="view-head">
+        <div>
+          <h2>التقديمات</h2>
+          <p>طلبات انضمام الأعضاء للفرق (Bot Developer, Bot Team, Designer, Marketing, Website).</p>
+        </div>
+      </div>
+      <div class="panel">
+        <table>
+          <thead><tr><th>العضو</th><th>الفريق</th><th>الرسالة</th><th>الحالة</th><th></th></tr></thead>
+          <tbody id="applicationsTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- AI assistant -->
+    <section class="view" id="view-ai">
+      <div class="view-head">
+        <div>
+          <h2>المساعد الذكي (AI)</h2>
+          <p>مساعد برمجي يظهر للعميل بعد الشراء في القسم اللي تحدده، ويرد على استفساراته البرمجية.</p>
+        </div>
+        <span class="badge badge-gemini">مدعوم من Gemini</span>
+      </div>
+      <div class="panel">
+        <form id="aiConfigForm">
+          <div class="field">
+            <label style="display:flex;align-items:center;gap:10px;">
+              <input type="checkbox" id="aiEnabledInput" style="width:auto;" />
+              تفعيل المساعد الذكي
+            </label>
+          </div>
+          <div class="field">
+            <label>مكان الظهور</label>
+            <input type="text" id="aiPlacementInput" placeholder="مثال: after_purchase أو product_page" />
+          </div>
+          <div class="field">
+            <label>عنوان المساعد (يظهر للعميل)</label>
+            <input type="text" id="aiTitleInput" placeholder="مثال: مساعد البرمجة الذكي" />
+          </div>
+          <div class="field">
+            <label>رمز الوصول (Access Code) — يدخله العميل قبل الدردشة، اتركه فاضي للسماح للجميع</label>
+            <input type="text" id="aiAccessCodeInput" placeholder="مثال: PRIME-VIP-2026" />
+          </div>
+          <div class="field">
+            <label>تعليمات النظام (System Prompt)</label>
+            <textarea id="aiSystemPromptInput" rows="6" style="width:100%;background:#0c0c0e;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:12px;font-family:inherit;font-size:13px;"></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">حفظ إعدادات المساعد</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section class="view" id="view-settings">
+      <div class="view-head">
+        <div>
+          <h2>الإعدادات</h2>
+          <p>إعدادات عامة للموقع وحساب الأدمن.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <h3>إعدادات الموقع</h3>
+          <p class="desc">تغيير رابط الديسكورد يحدث كل الأزرار في الموقع فورًا بدون رفع ملفات جديدة.</p>
+          <form id="settingsForm">
+            <div class="field">
+              <label>اسم الموقع</label>
+              <input type="text" id="siteNameInput" required />
+            </div>
+            <div class="field">
+              <label>رابط دعوة الديسكورد</label>
+              <input type="text" id="discordInviteInput" required placeholder="https://discord.gg/..." />
+            </div>
+            <button class="btn btn-primary" type="submit">حفظ الإعدادات</button>
+          </form>
+        </div>
+        <div class="panel">
+          <h3>حساب الأدمن</h3>
+          <p class="desc">تسجيل الدخول مرتبط بحساب Discord مباشرة — لا توجد كلمة مرور.</p>
+          <div class="account-card">
+            <img id="accountAvatar" class="account-avatar" alt="" />
+            <div>
+              <div class="account-name" id="accountName">—</div>
+              <div class="account-id mono" id="accountId">—</div>
+            </div>
+          </div>
+          <p class="hint">لإضافة أدمن ثاني أو تغيير من يقدر يدخل، عدّل متغير <code class="inline">ADMIN_DISCORD_IDS</code> بإعدادات السيرفر.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- API / Bot -->
+    <section class="view" id="view-api">
+      <div class="view-head">
+        <div>
+          <h2>API والبوت</h2>
+          <p>اربط بوت الديسكورد أو أي أداة خارجية بموقعك عبر مفاتيح API.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" id="addKeyBtn">+ توليد مفتاح جديد</button>
+      </div>
+      <div class="panel">
+        <h3>نقاط الوصول (Endpoints)</h3>
+        <p class="desc">أرسل الطلبات مع الهيدر <code class="inline">x-api-key</code> يحمل قيمة المفتاح.</p>
+        <table>
+          <tbody>
+            <tr><td><span class="badge">GET</span></td><td class="mono" id="epCatalog">/api/bot/catalog</td><td>كل الباكجات والمنتجات</td></tr>
+            <tr><td><span class="badge">GET</span></td><td class="mono" id="epSettings">/api/bot/settings</td><td>اسم الموقع + رابط الديسكورد</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>مفاتيح API</h3>
+        <p class="desc">أنشئ مفتاحًا مستقلًا لكل بوت أو تكامل، وألغِ أي مفتاح مسرّب فورًا.</p>
+        <table>
+          <thead><tr><th>الاسم</th><th>المفتاح</th><th>تاريخ الإنشاء</th><th></th></tr></thead>
+          <tbody id="keysTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="itemModalBackdrop">
+  <div class="modal">
+    <h3 id="itemModalTitle">تعديل عنصر</h3>
+    <p class="desc" style="color:var(--muted);font-size:12.5px;margin:-8px 0 16px;">
+      عدّل بيانات العنصر بصيغة JSON. الحقول المتاحة تعتمد على البيانات الأصلية لكل باكج/منتج
+      (السعر، التفاصيل، الميزات، الصور... إلخ).
+    </p>
+    <div class="field">
+      <label>المعرف (id)</label>
+      <input type="text" id="itemIdInput" />
+    </div>
+    <div class="field">
+      <label>بيانات العنصر (JSON)</label>
+      <textarea id="itemJsonInput" spellcheck="false"></textarea>
+    </div>
+    <p class="error-msg" id="itemModalError"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="itemModalCancel">إلغاء</button>
+      <button class="btn btn-primary" id="itemModalSave">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="freeModalBackdrop">
+  <div class="modal">
+    <h3 id="freeModalTitle">إضافة بوت مجاني</h3>
+    <div class="field">
+      <label>اسم البوت</label>
+      <input type="text" id="freeNameInput" />
+    </div>
+    <div class="field">
+      <label>الوصف</label>
+      <textarea id="freeDescInput" style="width:100%;min-height:90px;background:#0c0c0e;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:12px;font-family:inherit;font-size:13px;"></textarea>
+    </div>
+    <div class="field">
+      <label>رابط التحميل (مباشر)</label>
+      <input type="text" id="freeDownloadInput" placeholder="https://..." />
+    </div>
+    <div class="field">
+      <label>رابط الفيديو (اختياري)</label>
+      <input type="text" id="freeVideoInput" placeholder="https://..." />
+    </div>
+    <div class="field">
+      <label>روابط الصور (رابط في كل سطر)</label>
+      <textarea id="freeImagesInput" style="width:100%;min-height:80px;background:#0c0c0e;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:12px;font-family:inherit;font-size:12.5px;"></textarea>
+    </div>
+    <div class="field">
+      <label>وسوم (Tags) — مفصولة بفاصلة</label>
+      <input type="text" id="freeTagsInput" placeholder="discord, ticket" />
+    </div>
+    <p class="error-msg" id="freeModalError"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="freeModalCancel">إلغاء</button>
+      <button class="btn btn-primary" id="freeModalSave">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="planModalBackdrop">
+  <div class="modal">
+    <h3 id="planModalTitle">إضافة خطة</h3>
+    <div class="field">
+      <label>المعرف (id) — حروف/أرقام إنجليزية بدون مسافات، مثال: pro</label>
+      <input type="text" id="planIdInput" />
+    </div>
+    <div class="field">
+      <label>اسم الخطة</label>
+      <input type="text" id="planNameInput" placeholder="Pro" />
+    </div>
+    <div class="field">
+      <label>السعر</label>
+      <input type="text" id="planPriceInput" placeholder="$29" />
+    </div>
+    <div class="field">
+      <label>الدورة</label>
+      <input type="text" id="planPeriodInput" placeholder="/mo" />
+    </div>
+    <div class="field">
+      <label>وصف قصير</label>
+      <input type="text" id="planTaglineInput" placeholder="الأكثر طلبًا" />
+    </div>
+    <div class="field">
+      <label>المميزات (ميزة في كل سطر)</label>
+      <textarea id="planFeaturesInput" style="width:100%;min-height:110px;background:#0c0c0e;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:12px;font-family:inherit;font-size:13px;"></textarea>
+    </div>
+    <div class="field">
+      <label>شارة (Badge) — اختياري، مثال: الأكثر طلبًا</label>
+      <input type="text" id="planBadgeInput" />
+    </div>
+    <div class="field">
+      <label>رابط الاشتراك (CTA) — اتركه فاضي ليستخدم رابط الديسكورد العام</label>
+      <input type="text" id="planCtaInput" placeholder="https://..." />
+    </div>
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="planFeaturedInput" style="width:auto;" />
+        خطة مميزة (تظهر بارزة بمنتصف الصفحة)
+      </label>
+    </div>
+    <p class="error-msg" id="planModalError"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="planModalCancel">إلغاء</button>
+      <button class="btn btn-primary" id="planModalSave">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="bannerModalBackdrop">
+  <div class="modal">
+    <h3 id="bannerModalTitle">إضافة شعار</h3>
+    <div class="field">
+      <label>العنوان</label>
+      <input type="text" id="bannerTitleInput" />
+    </div>
+    <div class="field">
+      <label>رابط الصورة</label>
+      <input type="text" id="bannerImageInput" placeholder="https://..." />
+    </div>
+    <div class="field">
+      <label>رابط عند الضغط (اختياري)</label>
+      <input type="text" id="bannerLinkInput" placeholder="https://..." />
+    </div>
+    <div class="field">
+      <label style="display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="bannerActiveInput" style="width:auto;" checked />
+        مفعّل (يظهر بالموقع)
+      </label>
+    </div>
+    <p class="error-msg" id="bannerModalError"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="bannerModalCancel">إلغاء</button>
+      <button class="btn btn-primary" id="bannerModalSave">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/admin/assets/admin.js"></script>
+</body>
+</html>

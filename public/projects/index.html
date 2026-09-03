@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>مشاريع الأعضاء — Prime Store</title>
+<link href="../assets/favicon.gif" rel="icon" type="image/gif"/>
+<link rel="stylesheet" href="assets/projects.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="/"><img alt="" src="../assets/prime-core-mark.png"/><span>PRIME<small>STORE</small></span></a>
+  <div class="topbar-actions">
+    <a class="btn-ghost" href="/">الرئيسية</a>
+    <button class="btn-primary" data-add-project-btn="" hidden="">+ أضف مشروعك</button>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <p class="page-label">Community Showcase</p>
+    <h1>مشاريع الأعضاء</h1>
+    <p class="page-note">شوف وش بنى أعضاء المجتمع، وشارك مشروعك أنت لو مسجّل دخول.</p>
+  </div>
+
+  <div class="login-hint" data-login-hint="">
+    <span>سجّل دخولك عشان تقدر تضيف مشروعك.</span>
+    <a href="/api/auth/discord">تسجيل الدخول عبر Discord</a>
+  </div>
+
+  <div class="projects-grid" data-projects-grid=""></div>
+  <p class="empty-state" data-empty-state="" hidden="">ما فيه مشاريع لسا — كن أول وحد يضيف مشروعه!</p>
+</main>
+
+<!-- Modal: add project -->
+<div class="modal-backdrop" id="addProjectModal">
+  <div class="modal">
+    <h3>أضف مشروعك</h3>
+    <div class="field">
+      <label>اسم المشروع</label>
+      <input id="pTitle" placeholder="مثال: نظام تذاكر متكامل" type="text"/>
+    </div>
+    <div class="field">
+      <label>الوصف</label>
+      <textarea id="pDescription" placeholder="وش يسوي مشروعك؟"></textarea>
+    </div>
+    <div class="field">
+      <label>رابط صورة (اختياري)</label>
+      <input id="pImage" placeholder="https://..." type="text"/>
+    </div>
+    <div class="field">
+      <label>رابط المشروع / الديسكورد (اختياري)</label>
+      <input id="pLink" placeholder="https://..." type="text"/>
+    </div>
+    <p class="error-msg" id="addProjectError"></p>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="addProjectCancel" type="button">إلغاء</button>
+      <button class="btn-primary" id="addProjectSave" type="button">نشر</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/projects.js"></script>
+</body>
+</html>

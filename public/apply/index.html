@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>التقديم على الفرق — Prime Store</title>
+<link href="../assets/favicon.gif" rel="icon" type="image/gif"/>
+<link rel="stylesheet" href="../projects/assets/projects.css" />
+<link rel="stylesheet" href="assets/apply.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="/"><img alt="" src="../assets/prime-core-mark.png"/><span>PRIME<small>STORE</small></span></a>
+  <a class="btn-ghost" href="/">الرئيسية</a>
+</header>
+
+<main>
+  <div class="page-head">
+    <p class="page-label">Join the team</p>
+    <h1>قدّم للانضمام لفريقنا</h1>
+    <p class="page-note">اختر الفريق المناسب لك واكتب لنا نبذة عنك. الإدارة تراجع كل تقديم يدويًا.</p>
+  </div>
+
+  <div class="login-hint" data-login-hint="">
+    <span>لازم تسجّل دخول أول عشان تقدر تقدّم.</span>
+    <a href="/api/auth/discord">تسجيل الدخول عبر Discord</a>
+  </div>
+
+  <div class="teams-grid" data-teams-grid="">
+    <article class="team-card" data-team="bot_developer">
+      <h3>Bot Developer</h3>
+      <p>تطوير وصيانة بوتات الديسكورد الخاصة بنا.</p>
+      <button class="btn-primary" data-apply-btn="bot_developer" type="button">قدّم الآن</button>
+    </article>
+    <article class="team-card" data-team="bot_team">
+      <h3>Bot Team</h3>
+      <p>إدارة ودعم البوتات المفعّلة عند العملاء.</p>
+      <button class="btn-primary" data-apply-btn="bot_team" type="button">قدّم الآن</button>
+    </article>
+    <article class="team-card" data-team="designer_team">
+      <h3>Designer Team</h3>
+      <p>تصميم البنرات، الشعارات، وهوية المتجر البصرية.</p>
+      <button class="btn-primary" data-apply-btn="designer_team" type="button">قدّم الآن</button>
+    </article>
+    <article class="team-card" data-team="marketing_team">
+      <h3>Marketing Team</h3>
+      <p>الترويج للمتجر وإدارة الحملات على السوشال ميديا.</p>
+      <button class="btn-primary" data-apply-btn="marketing_team" type="button">قدّم الآن</button>
+    </article>
+    <article class="team-card" data-team="website_team">
+      <h3>Website Team</h3>
+      <p>تطوير وصيانة الموقع ولوحة التحكم.</p>
+      <button class="btn-primary" data-apply-btn="website_team" type="button">قدّم الآن</button>
+    </article>
+  </div>
+
+  <div class="my-applications" data-my-applications-wrap="" hidden="">
+    <h2>تقديماتي</h2>
+    <div id="myApplicationsList"></div>
+  </div>
+</main>
+
+<div class="modal-backdrop" id="applyModal">
+  <div class="modal">
+    <h3 id="applyModalTitle">التقديم</h3>
+    <div class="field">
+      <label>ليش نختارك لهذا الفريق؟</label>
+      <textarea id="applyMessage" placeholder="اذكر خبرتك، أعمال سابقة، أو أي شي يفيد تقديمك"></textarea>
+    </div>
+    <p class="error-msg" id="applyError"></p>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="applyCancel" type="button">إلغاء</button>
+      <button class="btn-primary" id="applySubmit" type="button">إرسال التقديم</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/apply.js"></script>
+</body>
+</html>

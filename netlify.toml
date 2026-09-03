@@ -1,0 +1,58 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Dynamic catalog.js: same URL the storefront already uses, now generated live from Supabase
+[[redirects]]
+  from = "/catalog.js"
+  to = "/.netlify/functions/catalog-js"
+  status = 200
+  force = true
+
+# Admin panel API
+[[redirects]]
+  from = "/admin/api/*"
+  to = "/.netlify/functions/admin-api/:splat"
+  status = 200
+  force = true
+
+# AI assistant chat (must come before the general /api/* redirect below)
+[[redirects]]
+  from = "/api/ai/chat"
+  to = "/.netlify/functions/ai-chat"
+  status = 200
+  force = true
+
+# Member login (Discord/Google) — must come before the general /api/* redirect below
+[[redirects]]
+  from = "/api/auth/*"
+  to = "/.netlify/functions/user-auth/:splat"
+  status = 200
+  force = true
+
+# Member project showcase — must come before the general /api/* redirect below
+[[redirects]]
+  from = "/api/member/*"
+  to = "/.netlify/functions/member-api/:splat"
+  status = 200
+  force = true
+
+# Public + bot-facing API
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/public-api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin/index.html"
+  status = 200
+
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

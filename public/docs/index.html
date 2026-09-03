@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<link href="../assets/favicon.gif" rel="icon" type="image/gif"/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="توثيق API الخاص بـ Prime Store — لأصحاب الخطط المدفوعة فقط." />
+<title>API — Prime Store</title>
+<link rel="stylesheet" href="/docs/assets/docs.css" />
+</head>
+<body>
+
+<a class="back-home" href="/">← رجوع للموقع</a>
+
+<!-- Gate screen: shown until a valid key is entered -->
+<div class="gate-shell" id="gateShell">
+  <div class="gate-card">
+    <div class="brand"><img alt="" src="../assets/prime-core-mark.png" style="width:20px;height:18px;object-fit:contain"/><span>PRIME<small>STORE</small></span></div>
+    <h1>توثيق الـ API</h1>
+    <p class="sub">هذي الصفحة مخصصة لأصحاب الخطط المدفوعة فقط. حط مفتاح الـ API اللي وصلك من الأدمن بعد الاشتراك.</p>
+    <form id="gateForm">
+      <input type="text" id="keyInput" placeholder="pk_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false" />
+      <button type="submit">تحقق من المفتاح</button>
+    </form>
+    <p class="error-msg" id="gateError"></p>
+    <p class="hint">ما عندك مفتاح؟ تواصل معنا في الديسكورد بعد الاشتراك بخطة تدعم الـ API.</p>
+  </div>
+</div>
+
+<!-- Docs screen: shown after a valid key -->
+<div class="docs-shell" id="docsShell">
+  <header>
+    <div class="brand"><img alt="" src="../assets/prime-core-mark.png" style="width:20px;height:18px;object-fit:contain"/><span>PRIME<small>STORE</small></span></div>
+    <div class="who">
+      <span id="keyLabel">—</span>
+      <button id="signOutBtn" type="button">تغيير المفتاح</button>
+    </div>
+  </header>
+
+  <main>
+    <h1>مرحبًا بك في API الخاص بمتجرك</h1>
+    <p class="lead">أرسل كل الطلبات مع الهيدر <code>x-api-key</code> يحمل مفتاحك. المفتاح سري — لا تشاركه مع أحد.</p>
+
+    <section class="endpoint">
+      <div class="endpoint-head"><span class="method">GET</span><code>/api/bot/catalog</code><button class="copy" data-copy-endpoint="/api/bot/catalog">نسخ الرابط</button></div>
+      <p>يرجع كل الباكجات والمنتجات المتاحة بالمتجر.</p>
+      <pre id="curlCatalog"></pre>
+    </section>
+
+    <section class="endpoint">
+      <div class="endpoint-head"><span class="method">GET</span><code>/api/bot/settings</code><button class="copy" data-copy-endpoint="/api/bot/settings">نسخ الرابط</button></div>
+      <p>يرجع اسم الموقع ورابط دعوة الديسكورد الحاليين.</p>
+      <pre id="curlSettings"></pre>
+    </section>
+
+    <section class="endpoint">
+      <div class="endpoint-head"><span class="method">GET</span><code>/api/bot/free</code><button class="copy" data-copy-endpoint="/api/bot/free">نسخ الرابط</button></div>
+      <p>يرجع كل البوتات المجانية المتاحة حاليًا.</p>
+      <pre id="curlFree"></pre>
+    </section>
+
+    <section class="endpoint">
+      <h2>مثال ريسبونس (بايثون)</h2>
+      <pre id="pySnippet"></pre>
+    </section>
+  </main>
+</div>
+
+<script src="/docs/assets/docs.js"></script>
+</body>
+</html>
