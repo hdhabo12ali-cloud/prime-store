@@ -6,6 +6,8 @@ const translations = {
     nav_free: "Free",
     nav_projects: "Community",
     nav_apply: "Join Team",
+    nav_license: "License",
+    nav_presets: "Presets",
     nav_about: "About",
     nav_trust: "Trust",
     nav_staff: "Staff",
@@ -15,6 +17,9 @@ const translations = {
     nav_discord: "Discord",
     member_login: "Log in",
     member_logout: "Log out",
+    ai_widget_title: "Prime Store Assistant",
+    ai_gate_note: "Enter your access code to start chatting.",
+    ai_gate_submit: "Continue",
     plans_label: "Subscription Plans",
     plans_title: "Pick a plan, start today.",
     plans_note: "Three simple plans. Upgrade or cancel any time from Discord.",
@@ -94,6 +99,8 @@ const translations = {
     nav_free: "مجاني",
     nav_projects: "المجتمع",
     nav_apply: "انضم لفريقنا",
+    nav_license: "التفعيل",
+    nav_presets: "Presets",
     nav_about: "عن المتجر",
     nav_trust: "الثقة والتوثيق",
     nav_staff: "الفريق",
@@ -103,6 +110,9 @@ const translations = {
     nav_discord: "الديسكورد",
     member_login: "تسجيل الدخول",
     member_logout: "تسجيل الخروج",
+    ai_widget_title: "مساعد Prime Store",
+    ai_gate_note: "أدخل رمز الوصول عشان تبدأ المحادثة.",
+    ai_gate_submit: "متابعة",
     plans_label: "خطط الاشتراك",
     plans_title: "اختر خطتك وابدأ اليوم.",
     plans_note: "3 خطط بسيطة. رقّي أو ألغِ اشتراكك أي وقت من الديسكورد.",
@@ -395,6 +405,94 @@ function renderLoggedInMember(wrap, btn, menu, user) {
   });
 }
 
+// ============================================================
+// المساعد الذكي (نافذة منبثقة)
+// ============================================================
+function initAiWidget() {
+  const fab = document.querySelector("[data-ai-fab]");
+  const panel = document.querySelector("[data-ai-panel]");
+  if (!fab || !panel) return;
+
+  const gate = panel.querySelector("[data-ai-gate]");
+  const chatEl = panel.querySelector("[data-ai-chat]");
+  const messagesEl = panel.querySelector("[data-ai-messages]");
+  const form = panel.querySelector("[data-ai-form]");
+  const msgInput = panel.querySelector("[data-ai-message-input]");
+  const codeInput = panel.querySelector("[data-ai-code-input]");
+  const gateError = panel.querySelector("[data-ai-gate-error]");
+
+  let accessCode = safeStorageGet("prime_store_ai_code") || "";
+  let conversationId = safeStorageGet("prime_store_ai_conv") || null;
+
+  function openPanel() {
+    panel.hidden = false;
+    if (accessCode || conversationId) showChat();
+  }
+  function closePanel() {
+    panel.hidden = true;
+  }
+  fab.addEventListener("click", () => (panel.hidden ? openPanel() : closePanel()));
+  panel.querySelector("[data-ai-close]").addEventListener("click", closePanel);
+
+  function showChat() {
+    gate.hidden = true;
+    chatEl.hidden = false;
+    msgInput.focus();
+  }
+
+  function addMessage(role, text, pending) {
+    const bubble = document.createElement("div");
+    bubble.className = `ai-msg ${role}${pending ? " pending" : ""}`;
+    bubble.textContent = text;
+    messagesEl.appendChild(bubble);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return bubble;
+  }
+
+  panel.querySelector("[data-ai-code-submit]").addEventListener("click", () => {
+    const val = codeInput.value.trim();
+    accessCode = val;
+    if (val) safeStorageSet("prime_store_ai_code", val);
+    gateError.textContent = "";
+    showChat();
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = msgInput.value.trim();
+    if (!text) return;
+    msgInput.value = "";
+    addMessage("user", text);
+    const pendingBubble = addMessage("assistant", "...", true);
+
+    try {
+      const res = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accessCode, message: text, conversationId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (res.status === 401) {
+          pendingBubble.remove();
+          chatEl.hidden = true;
+          gate.hidden = false;
+          gateError.textContent = data.error || "رمز غير صحيح";
+          return;
+        }
+        throw new Error(data.error || "تعذّر الاتصال");
+      }
+      conversationId = data.conversationId;
+      if (conversationId) safeStorageSet("prime_store_ai_conv", conversationId);
+      pendingBubble.classList.remove("pending");
+      pendingBubble.textContent = data.reply;
+    } catch (err) {
+      pendingBubble.classList.remove("pending");
+      pendingBubble.textContent = "تعذّر الاتصال بالمساعد، حاول مرة ثانية.";
+    }
+  });
+}
+
 function setupCardPreviews() {
   const videos = document.querySelectorAll(".catalog-card-media video");
   const showFrame = (video) => {
@@ -612,9 +710,9 @@ function safeStorageSet(key, value) {
 // إعلان تحديث الموقع — غيّر UPDATE_VERSION ونص الرسالة بكل مرة
 // تسوي تحديث جديد للموقع، والإعلان يطلع تلقائي لكل زائر مرة وحدة بس.
 // ============================================================
-const SITE_UPDATE_VERSION = "2026-09-01-1";
-const SITE_UPDATE_MESSAGE = "Site updated: new Plans section, app download, refreshed branding.";
-const SITE_UPDATE_MESSAGE_AR = "تم تحديث الموقع: قسم خطط جديد، تحميل البرنامج، وهوية بصرية محدّثة.";
+const SITE_UPDATE_VERSION = "2026-09-03-2";
+const SITE_UPDATE_MESSAGE = "Site updated: member accounts, project showcase, team applications, and settings.";
+const SITE_UPDATE_MESSAGE_AR = "تم تحديث الموقع: حسابات الأعضاء، معرض المشاريع، تقديمات الفرق، والإعدادات.";
 
 function showUpdateBanner() {
   const seen = safeStorageGet("prime_store_update_seen");
@@ -629,15 +727,19 @@ function showUpdateBanner() {
     <button type="button" class="update-banner-close" aria-label="Dismiss">&times;</button>
   `;
   document.body.appendChild(bar);
-  requestAnimationFrame(() => bar.classList.add("is-visible"));
+  requestAnimationFrame(() => {
+    bar.classList.add("is-visible");
+    document.body.style.marginTop = bar.offsetHeight + "px";
+  });
 
   const dismiss = () => {
     bar.classList.remove("is-visible");
+    document.body.style.marginTop = "";
     safeStorageSet("prime_store_update_seen", SITE_UPDATE_VERSION);
     setTimeout(() => bar.remove(), 400);
   };
   bar.querySelector(".update-banner-close").addEventListener("click", dismiss);
-  setTimeout(dismiss, 8000);
+  // بنر أعلى الصفحة يضل ظاهر لين يضغط المستخدم X (مو اختفاء تلقائي)
 }
 
 function setLanguage(lang) {
@@ -665,6 +767,7 @@ langToggle.addEventListener("click", () => setLanguage(root.lang === "ar" ? "en"
 setLanguage(safeStorageGet("prime-core-lang") === "ar" ? "ar" : "en");
 showUpdateBanner();
 initMemberAuth();
+initAiWidget();
 bindCatalog();
 refreshStaffProfiles();
 

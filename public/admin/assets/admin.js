@@ -7,7 +7,7 @@
   const appShell = $("#appShell");
   const toastEl = $("#toast");
 
-  let state = { packages: [], products: [], freeBots: [], apiKeys: [], settings: {}, aiConfig: {}, plans: [], banners: [], applications: [], username: "" };
+  let state = { packages: [], products: [], freeBots: [], apiKeys: [], settings: {}, aiConfig: {}, plans: [], banners: [], applications: [], releases: [], licenses: [], presets: [], username: "" };
 
   function showToast(message, kind) {
     toastEl.textContent = message;
@@ -113,7 +113,7 @@
   // ---------------- Data loading ----------------
   async function loadAll() {
     try {
-      const [data, keys, freeBots, aiConfig, plans, banners, applications] = await Promise.all([
+      const [data, keys, freeBots, aiConfig, plans, banners, applications, releases, licenses, presets] = await Promise.all([
         api("/admin/api/data"),
         api("/admin/api/apikeys"),
         api("/admin/api/free"),
@@ -121,6 +121,9 @@
         api("/admin/api/plans"),
         api("/admin/api/banners"),
         api("/admin/api/applications"),
+        api("/admin/api/releases").catch(() => []),
+        api("/admin/api/licenses").catch(() => []),
+        api("/admin/api/presets").catch(() => []),
       ]);
       state.packages = data.packages;
       state.products = data.products;
@@ -131,6 +134,9 @@
       state.plans = plans;
       state.banners = banners;
       state.applications = applications;
+      state.releases = releases;
+      state.licenses = licenses;
+      state.presets = presets;
       renderOverview();
       renderPackages();
       renderProducts();
@@ -141,6 +147,9 @@
       renderPlans();
       renderBanners();
       renderApplications();
+      renderReleases();
+      renderLicenses();
+      renderPresets();
     } catch (err) {
       if (err.status === 401) showLogin();
       else showToast("تعذّر تحميل البيانات", "error");
@@ -452,6 +461,192 @@
     } else if (rejectBtn) {
       await api(`/admin/api/applications/${rejectBtn.dataset.appReject}/reject`, { method: "POST" });
       showToast("تم رفض التقديم", "ok");
+      await loadAll();
+    }
+  });
+
+  function renderReleases() {
+    const rows = state.releases
+      .map(
+        (r) => `
+      <tr>
+        <td class="mono">${escapeHtml(r.tagName)}</td>
+        <td>${r.publishedAt ? new Date(r.publishedAt).toLocaleDateString("ar") : "—"}</td>
+        <td class="actions">
+          <button class="btn btn-ghost btn-sm" data-edit-release="${r.id}">تعديل النص</button>
+          <a class="btn btn-ghost btn-sm" href="${escapeAttr(r.htmlUrl)}" target="_blank" rel="noreferrer">فتح بـ GitHub</a>
+        </td>
+      </tr>`
+      )
+      .join("");
+    $("#releasesTable").innerHTML = rows || `<tr><td colspan="3" style="color:var(--muted)">لا توجد إصدارات — أو GITHUB_RELEASE_TOKEN مو مضبوط</td></tr>`;
+  }
+
+  const releaseModalBackdrop = $("#releaseModalBackdrop");
+  let releaseModalId = null;
+
+  function openReleaseModal(id) {
+    const r = state.releases.find((x) => String(x.id) === String(id));
+    if (!r) return;
+    releaseModalId = id;
+    $("#releaseModalTitle").textContent = `تعديل: ${r.tagName}`;
+    $("#releaseNameInput").value = r.name || "";
+    $("#releaseBodyInput").value = r.body || "";
+    $("#releaseModalError").textContent = "";
+    releaseModalBackdrop.classList.add("active");
+  }
+  $("#releaseModalCancel").addEventListener("click", () => releaseModalBackdrop.classList.remove("active"));
+  releaseModalBackdrop.addEventListener("click", (e) => {
+    if (e.target === releaseModalBackdrop) releaseModalBackdrop.classList.remove("active");
+  });
+  $("#releaseModalSave").addEventListener("click", async () => {
+    const errorEl = $("#releaseModalError");
+    try {
+      await api(`/admin/api/releases/${releaseModalId}`, {
+        method: "PUT",
+        body: { name: $("#releaseNameInput").value.trim(), body: $("#releaseBodyInput").value },
+      });
+      showToast("تم تحديث نص الإصدار على GitHub", "ok");
+      releaseModalBackdrop.classList.remove("active");
+      await loadAll();
+    } catch (err) {
+      errorEl.textContent = err.message || "تعذّر الحفظ";
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    const editRelease = e.target.closest("[data-edit-release]");
+    if (editRelease) openReleaseModal(editRelease.dataset.editRelease);
+  });
+
+  const LICENSE_STATUS_LABELS = { unused: "غير مستخدم", redeemed: "مفعّل ✓", revoked: "ملغى ✕" };
+
+  function renderLicenses() {
+    const rows = state.licenses
+      .map(
+        (k) => `
+      <tr>
+        <td class="mono">${escapeHtml(k.keyCode)}</td>
+        <td>${escapeHtml(k.itemName)}</td>
+        <td>${LICENSE_STATUS_LABELS[k.status] || k.status}</td>
+        <td>${escapeHtml(k.memberName || "—")}</td>
+        <td class="actions">${k.status !== "revoked" ? `<button class="btn btn-danger btn-sm" data-revoke-license="${k.id}">إلغاء</button>` : ""}</td>
+      </tr>`
+      )
+      .join("");
+    $("#licensesTable").innerHTML = rows || `<tr><td colspan="5" style="color:var(--muted)">لا توجد مفاتيح بعد</td></tr>`;
+  }
+
+  const genLicenseModal = $("#genLicenseModal");
+  $("#genLicenseBtn").addEventListener("click", () => {
+    $("#licenseItemName").value = "";
+    $("#licenseCount").value = "1";
+    $("#genLicenseError").textContent = "";
+    genLicenseModal.classList.add("active");
+  });
+  $("#genLicenseCancel").addEventListener("click", () => genLicenseModal.classList.remove("active"));
+  genLicenseModal.addEventListener("click", (e) => {
+    if (e.target === genLicenseModal) genLicenseModal.classList.remove("active");
+  });
+  $("#genLicenseSave").addEventListener("click", async () => {
+    const errorEl = $("#genLicenseError");
+    const itemName = $("#licenseItemName").value.trim();
+    if (!itemName) {
+      errorEl.textContent = "اسم المنتج مطلوب.";
+      return;
+    }
+    try {
+      const res = await api("/admin/api/licenses/generate", {
+        method: "POST",
+        body: { itemName, count: parseInt($("#licenseCount").value, 10) || 1 },
+      });
+      showToast(`تم توليد ${res.created} مفتاح`, "ok");
+      genLicenseModal.classList.remove("active");
+      await loadAll();
+    } catch (err) {
+      errorEl.textContent = err.message || "تعذّر التوليد";
+    }
+  });
+
+  function renderPresets() {
+    const rows = state.presets
+      .map(
+        (p) => `
+      <tr>
+        <td>${escapeHtml(p.title)}</td>
+        <td>${escapeHtml(p.category || "—")}</td>
+        <td class="actions">
+          <button class="btn btn-ghost btn-sm" data-edit-preset="${p.id}">تعديل</button>
+          <button class="btn btn-danger btn-sm" data-del-preset="${p.id}">حذف</button>
+        </td>
+      </tr>`
+      )
+      .join("");
+    $("#presetsTable").innerHTML = rows || `<tr><td colspan="3" style="color:var(--muted)">لا توجد Presets بعد</td></tr>`;
+  }
+
+  const presetModal = $("#addPresetModal");
+  let presetModalCtx = { id: null, isNew: false };
+  function openPresetModal(id) {
+    presetModalCtx = { id, isNew: !id };
+    const item = id ? state.presets.find((p) => p.id === id) : null;
+    $("#presetModalTitle").textContent = id ? "تعديل Preset" : "إضافة Preset";
+    $("#presetTitleInput").value = item ? item.title : "";
+    $("#presetDescInput").value = item ? item.description || "" : "";
+    $("#presetCategoryInput").value = item ? item.category || "" : "";
+    $("#presetFileInput").value = item ? item.fileUrl || "" : "";
+    $("#presetModalError").textContent = "";
+    presetModal.classList.add("active");
+  }
+  $("#addPresetBtn").addEventListener("click", () => openPresetModal(null));
+  $("#presetModalCancel").addEventListener("click", () => presetModal.classList.remove("active"));
+  presetModal.addEventListener("click", (e) => {
+    if (e.target === presetModal) presetModal.classList.remove("active");
+  });
+  $("#presetModalSave").addEventListener("click", async () => {
+    const errorEl = $("#presetModalError");
+    const title = $("#presetTitleInput").value.trim();
+    const fileUrl = $("#presetFileInput").value.trim();
+    if (!title || !fileUrl) {
+      errorEl.textContent = "العنوان ورابط الملف مطلوبين.";
+      return;
+    }
+    const payload = {
+      title,
+      description: $("#presetDescInput").value.trim(),
+      category: $("#presetCategoryInput").value.trim(),
+      fileUrl,
+    };
+    try {
+      if (presetModalCtx.isNew) {
+        await api("/admin/api/presets", { method: "POST", body: payload });
+        showToast("تمت الإضافة", "ok");
+      } else {
+        await api(`/admin/api/presets/${presetModalCtx.id}`, { method: "PUT", body: payload });
+        showToast("تم الحفظ", "ok");
+      }
+      presetModal.classList.remove("active");
+      await loadAll();
+    } catch (err) {
+      errorEl.textContent = err.message || "تعذّر الحفظ";
+    }
+  });
+
+  document.addEventListener("click", async (e) => {
+    const revokeBtn = e.target.closest("[data-revoke-license]");
+    const editPreset = e.target.closest("[data-edit-preset]");
+    const delPreset = e.target.closest("[data-del-preset]");
+    if (revokeBtn) {
+      if (!confirm("إلغاء هذا المفتاح؟")) return;
+      await api(`/admin/api/licenses/${revokeBtn.dataset.revokeLicense}/revoke`, { method: "POST" });
+      showToast("تم الإلغاء", "ok");
+      await loadAll();
+    } else if (editPreset) {
+      openPresetModal(editPreset.dataset.editPreset);
+    } else if (delPreset) {
+      if (!confirm("حذف هذا الـPreset؟")) return;
+      await api(`/admin/api/presets/${delPreset.dataset.delPreset}`, { method: "DELETE" });
+      showToast("تم الحذف", "ok");
       await loadAll();
     }
   });

@@ -171,6 +171,25 @@ function mapBannerIn(b) {
     sort_order: Number.isFinite(b.sortOrder) ? b.sortOrder : 0,
   };
 }
+function mapPresetOut(p) {
+  return {
+    id: p.id,
+    title: p.title,
+    description: p.description,
+    category: p.category,
+    fileUrl: p.file_url,
+    sortOrder: p.sort_order,
+  };
+}
+function mapPresetIn(b) {
+  return {
+    title: b.title || "",
+    description: b.description || "",
+    category: b.category || null,
+    file_url: b.fileUrl || "",
+    sort_order: Number.isFinite(b.sortOrder) ? b.sortOrder : 0,
+  };
+}
 
 exports.handler = async (event) => {
   const method = event.httpMethod;
@@ -294,6 +313,125 @@ exports.handler = async (event) => {
           member: membersById[a.member_id] || null,
         }))
       );
+    }
+
+    // ---- تعديل نصوص إصدارات البرنامج (GitHub Releases) ----
+    const GITHUB_REPO = "hdhabo12ali-cloud/prime-store";
+
+    if (path === "/releases" && method === "GET") {
+      const token = process.env.GITHUB_RELEASE_TOKEN;
+      if (!token) return json(500, { error: "GITHUB_RELEASE_TOKEN غير مضبوط بمتغيرات البيئة" });
+      const ghRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" },
+      });
+      if (!ghRes.ok) return json(400, { error: "تعذّر جلب الإصدارات من GitHub" });
+      const releases = await ghRes.json();
+      return json(
+        200,
+        releases.map((r) => ({
+          id: r.id,
+          tagName: r.tag_name,
+          name: r.name,
+          body: r.body,
+          publishedAt: r.published_at,
+          htmlUrl: r.html_url,
+        }))
+      );
+    }
+
+    let mr = path.match(/^\/releases\/(\d+)$/);
+    if (mr && method === "PUT") {
+      const token = process.env.GITHUB_RELEASE_TOKEN;
+      if (!token) return json(500, { error: "GITHUB_RELEASE_TOKEN غير مضبوط بمتغيرات البيئة" });
+      const releaseId = mr[1];
+      const body = JSON.parse(event.body || "{}");
+      const ghRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/${releaseId}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: body.name,
+          body: body.body,
+        }),
+      });
+      if (!ghRes.ok) {
+        const errText = await ghRes.text();
+        return json(400, { error: `تعذّر تحديث الإصدار: ${errText}` });
+      }
+      return json(200, { ok: true });
+    }
+
+    // ---- License keys ----
+    if (path === "/licenses" && method === "GET") {
+      const { data, error } = await supabase
+        .from("license_keys")
+        .select("*, members(username,email)")
+        .order("created_at", { ascending: false })
+        .limit(500);
+      if (error) return json(400, { error: error.message });
+      return json(
+        200,
+        (data || []).map((k) => ({
+          id: k.id,
+          keyCode: k.key_code,
+          itemName: k.item_name,
+          status: k.status,
+          memberName: k.members ? k.members.username || k.members.email : null,
+          redeemedAt: k.redeemed_at,
+          createdAt: k.created_at,
+        }))
+      );
+    }
+
+    if (path === "/licenses/generate" && method === "POST") {
+      const body = JSON.parse(event.body || "{}");
+      const itemName = (body.itemName || "").trim();
+      const count = Math.min(Math.max(parseInt(body.count, 10) || 1, 1), 100);
+      if (!itemName) return json(400, { error: "اسم المنتج/الباكج مطلوب" });
+
+      const rows = Array.from({ length: count }, () => ({
+        item_name: itemName,
+        key_code: `PS-${crypto.randomBytes(4).toString("hex").toUpperCase()}-${crypto.randomBytes(4).toString("hex").toUpperCase()}`,
+      }));
+      const { data, error } = await supabase.from("license_keys").insert(rows).select();
+      if (error) return json(400, { error: error.message });
+      return json(200, { created: data.length, keys: data.map((k) => k.key_code) });
+    }
+
+    let ml = path.match(/^\/licenses\/([^/]+)\/revoke$/);
+    if (ml && method === "POST") {
+      const { error } = await supabase.from("license_keys").update({ status: "revoked" }).eq("id", ml[1]);
+      if (error) return json(400, { error: error.message });
+      return json(200, { ok: true });
+    }
+
+    // ---- Presets ----
+    if (path === "/presets" && method === "GET") {
+      const { data } = await supabase.from("presets").select("*").order("sort_order").order("created_at");
+      return json(200, (data || []).map(mapPresetOut));
+    }
+    if (path === "/presets" && method === "POST") {
+      const b = JSON.parse(event.body || "{}");
+      const row = mapPresetIn(b);
+      if (!row.title || !row.file_url) return json(400, { error: "العنوان ورابط الملف مطلوبين" });
+      const { data, error } = await supabase.from("presets").insert(row).select().maybeSingle();
+      if (error) return json(400, { error: error.message });
+      return json(200, mapPresetOut(data));
+    }
+    let mp2 = path.match(/^\/presets\/([^/]+)$/);
+    if (mp2 && method === "PUT") {
+      const b = JSON.parse(event.body || "{}");
+      const { error } = await supabase.from("presets").update(mapPresetIn(b)).eq("id", mp2[1]);
+      if (error) return json(400, { error: error.message });
+      return json(200, { ok: true });
+    }
+    if (mp2 && method === "DELETE") {
+      const { error } = await supabase.from("presets").delete().eq("id", mp2[1]);
+      if (error) return json(400, { error: error.message });
+      return json(200, { ok: true });
     }
 
     let ma = path.match(/^\/applications\/([^/]+)\/(approve|reject)$/);

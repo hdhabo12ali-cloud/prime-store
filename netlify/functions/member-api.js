@@ -58,6 +58,22 @@ exports.handler = async (event) => {
       return json(200, out);
     }
 
+    // ---- قائمة عامة للـ Presets (يشوفها أي زائر) ----
+    if (path === "/presets" && method === "GET") {
+      const { data, error } = await supabase.from("presets").select("*").order("sort_order").order("created_at");
+      if (error) return json(400, { error: error.message });
+      return json(
+        200,
+        (data || []).map((p) => ({
+          id: p.id,
+          title: p.title,
+          description: p.description,
+          category: p.category,
+          fileUrl: p.file_url,
+        }))
+      );
+    }
+
     // من هنا وطالع، لازم يكون مسجّل دخول كعضو
     const session = getMemberSessionFromEvent(event);
     if (!session) return json(401, { error: "لازم تسجّل دخول أول" });
@@ -96,6 +112,40 @@ exports.handler = async (event) => {
       const { error } = await supabase.from("member_projects").delete().eq("id", id).eq("member_id", session.sub);
       if (error) return json(400, { error: error.message });
       return json(200, { ok: true });
+    }
+
+    if (path === "/redeem-license" && method === "POST") {
+      const body = JSON.parse(event.body || "{}");
+      const keyCode = (body.keyCode || "").trim().toUpperCase();
+      if (!keyCode) return json(400, { error: "أدخل مفتاح التفعيل" });
+
+      const { data: key } = await supabase.from("license_keys").select("*").eq("key_code", keyCode).maybeSingle();
+      if (!key) return json(404, { error: "المفتاح غير موجود" });
+      if (key.status === "revoked") return json(400, { error: "هذا المفتاح ملغى" });
+      if (key.status === "redeemed") {
+        if (key.member_id === session.sub) {
+          return json(200, { itemName: key.item_name, alreadyYours: true });
+        }
+        return json(400, { error: "هذا المفتاح مستخدم من قبل" });
+      }
+
+      const { error } = await supabase
+        .from("license_keys")
+        .update({ status: "redeemed", member_id: session.sub, redeemed_at: new Date().toISOString() })
+        .eq("id", key.id);
+      if (error) return json(400, { error: error.message });
+      return json(200, { itemName: key.item_name });
+    }
+
+    if (path === "/my-licenses" && method === "GET") {
+      const { data, error } = await supabase
+        .from("license_keys")
+        .select("id,key_code,item_name,redeemed_at")
+        .eq("member_id", session.sub)
+        .eq("status", "redeemed")
+        .order("redeemed_at", { ascending: false });
+      if (error) return json(400, { error: error.message });
+      return json(200, (data || []).map((k) => ({ id: k.id, keyCode: k.key_code, itemName: k.item_name, redeemedAt: k.redeemed_at })));
     }
 
     // ---- تقديمات الفرق ----

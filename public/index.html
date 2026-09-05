@@ -32,6 +32,8 @@
 <a data-i18n="nav_free" href="#free">Free</a>
 <a data-i18n="nav_projects" href="/projects">Community</a>
 <a data-i18n="nav_apply" href="/apply">Join Team</a>
+<a data-i18n="nav_license" href="/license">License</a>
+<a data-i18n="nav_presets" href="/presets">Presets</a>
 <a data-i18n="nav_about" href="#about">About</a>
 <a data-i18n="nav_trust" href="#trust">Trust</a>
 <a data-i18n="nav_api" href="/docs">API</a>
@@ -488,5 +490,34 @@
 <script src="npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
 <script src="catalog.js"></script>
 <script src="app.js"></script>
+<!-- AI assistant floating widget -->
+<button aria-label="Chat with assistant" class="ai-fab" data-ai-fab="" type="button">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1-.1.9-.5 2.3-1.6 3.7 0 0 2.3-.1 4.4-1.5.9.3 2 .5 3.1.5 5.5 0 10-3.8 10-8.5S17.5 3 12 3Z"></path></svg>
+</button>
+
+<div class="ai-panel" data-ai-panel="" hidden="">
+  <div class="ai-panel-head">
+    <span data-i18n="ai_widget_title">Prime Store Assistant</span>
+    <button aria-label="Close" data-ai-close="" type="button">&times;</button>
+  </div>
+
+  <div class="ai-gate" data-ai-gate="">
+    <p data-i18n="ai_gate_note">Enter your access code to start chatting.</p>
+    <input data-ai-code-input="" placeholder="Access code" type="text"/>
+    <button class="button button-primary" data-ai-code-submit="" type="button"><span data-i18n="ai_gate_submit">Continue</span></button>
+    <p class="ai-error" data-ai-gate-error=""></p>
+  </div>
+
+  <div class="ai-chat" data-ai-chat="" hidden="">
+    <div class="ai-messages" data-ai-messages=""></div>
+    <form data-ai-form="">
+      <input data-ai-message-input="" placeholder="اكتب رسالتك..." type="text"/>
+      <button aria-label="Send" type="submit">
+        <svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 20l18-8L3 4l0 7 12 1-12 1z"></path></svg>
+      </button>
+    </form>
+  </div>
+</div>
+
 </body>
 </html>

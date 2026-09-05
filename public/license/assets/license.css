@@ -1,0 +1,17 @@
+.redeem-box { display: flex; gap: 10px; max-width: 460px; margin: 0 auto 12px; }
+.redeem-box input {
+  flex: 1; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line);
+  background: #0c0c0e; color: var(--text); font-family: monospace; font-size: 13px; text-align: center;
+}
+.redeem-box .btn-primary { border: none; white-space: nowrap; }
+.redeem-msg { text-align: center; font-size: 12.5px; min-height: 18px; margin: 0 0 40px; color: var(--muted); }
+.redeem-msg.ok { color: #37d67a; }
+.redeem-msg.error { color: #ff5c5c; }
+
+.my-licenses h2 { font-size: 15px; margin: 0 0 14px; color: var(--muted); text-align: center; }
+.license-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; font-size: 12.5px;
+  max-width: 460px; margin-inline: auto; margin-bottom: 8px;
+}
+.license-row .key { font-family: monospace; color: var(--muted); font-size: 11px; }

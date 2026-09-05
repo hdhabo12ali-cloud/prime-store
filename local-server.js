@@ -12,6 +12,8 @@ const adminApi = require("./netlify/functions/admin-api");
 const publicApi = require("./netlify/functions/public-api");
 const catalogJs = require("./netlify/functions/catalog-js");
 const aiChat = require("./netlify/functions/ai-chat");
+const userAuth = require("./netlify/functions/user-auth");
+const memberApi = require("./netlify/functions/member-api");
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
@@ -49,6 +51,8 @@ function wrap(handler) {
 app.all("/api/ai/chat", wrap(aiChat.handler));
 app.get("/catalog.js", wrap(catalogJs.handler));
 app.all("/admin/api/*", wrap(adminApi.handler));
+app.all("/api/auth/*", wrap(userAuth.handler));
+app.all("/api/member/*", wrap(memberApi.handler));
 app.all("/api/*", wrap(publicApi.handler));
 
 // Static files (storefront + admin panel UI)

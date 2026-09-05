@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>تفعيل المنتج — Prime Store</title>
+<link href="../assets/favicon.gif" rel="icon" type="image/gif"/>
+<link rel="stylesheet" href="../projects/assets/projects.css" />
+<link rel="stylesheet" href="assets/license.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="/"><img alt="" src="../assets/prime-core-mark.png"/><span>PRIME<small>STORE</small></span></a>
+  <a class="btn-ghost" href="/">الرئيسية</a>
+</header>
+
+<main>
+  <div class="page-head">
+    <p class="page-label">Product Activation</p>
+    <h1>فعّل منتجك</h1>
+    <p class="page-note">أدخل مفتاح التفعيل اللي وصلك بعد الشراء.</p>
+  </div>
+
+  <div class="login-hint" data-login-hint="">
+    <span>لازم تسجّل دخول أول عشان تربط المفتاح بحسابك.</span>
+    <a href="/api/auth/discord">تسجيل الدخول عبر Discord</a>
+  </div>
+
+  <div class="redeem-box" data-redeem-box="" hidden="">
+    <input data-key-input="" placeholder="PS-XXXXXXXX-XXXXXXXX" type="text"/>
+    <button class="btn-primary" data-redeem-btn="" type="button">تفعيل</button>
+  </div>
+  <p class="redeem-msg" data-redeem-msg=""></p>
+
+  <div class="my-licenses" data-my-licenses-wrap="" hidden="">
+    <h2>منتجاتك المفعّلة</h2>
+    <div id="myLicensesList"></div>
+  </div>
+</main>
+
+<script src="assets/license.js"></script>
+</body>
+</html>

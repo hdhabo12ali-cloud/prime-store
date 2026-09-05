@@ -3,7 +3,7 @@
 // البرنامج (Electron) هو الوحيد اللي يرسل هذا الهيدر تلقائيًا مع كل طلب (شوف main.js).
 
 export default async (request, context) => {
-  const secret = Netlify.env.get("DESKTOP_APP_SECRET");
+  const secret = context.env.get("DESKTOP_APP_SECRET");
 
   // لو ما ضبطنا السر أصلاً بمتغيرات البيئة، ما نقفل الموقع بالغلط —
   // نخليه مفتوح عادي (نفس سلوك ما قبل ما نضيف هالميزة).
