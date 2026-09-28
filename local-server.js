@@ -1,8 +1,7 @@
 "use strict";
 /**
- * سيرفر محلي يشغّل نفس منطق الباك إند (Netlify Functions) لكن على جهازك مباشرة.
- * تشغيل: npm install && npm start
- * بعدها افتح: http://localhost:3000/admin
+ * سيرفر يشغّل نفس منطق الباك إند (نفس الكود المستخدم بـ Netlify Functions)
+ * يشتغل محليًا على جهازك (npm start) أو مستضاف على Render.com بدون أي تعديل إضافي.
  */
 require("dotenv").config();
 const path = require("path");
@@ -16,7 +15,27 @@ const userAuth = require("./netlify/functions/user-auth");
 const memberApi = require("./netlify/functions/member-api");
 
 const app = express();
+app.set("trust proxy", true); // ضروري خلف بروكسي Render عشان https/الكوكيز يشتغلوا صح
 app.use(express.json({ limit: "2mb" }));
+
+// ============================================================
+// حماية "خاص بالبرنامج فقط" — نفس فكرة app-gate.js لكن كـ Express middleware
+// (على Netlify كانت Edge Function، وهنا نسويها بنفس المنطق).
+// ============================================================
+app.use((req, res, next) => {
+  const secret = process.env.DESKTOP_APP_SECRET;
+  if (!secret) return next(); // ما فيه سر مضبوط = الموقع مفتوح عادي
+  if (req.headers["x-app-key"] === secret) return next();
+  res
+    .status(403)
+    .type("html")
+    .send(
+      `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>غير متاح</title>
+      <meta name="robots" content="noindex, nofollow">
+      <style>body{background:#0a0a0b;color:#9c9a96;font-family:system-ui,sans-serif;height:100vh;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}</style>
+      </head><body><p>هذا المحتوى متاح فقط عبر تطبيق سطح المكتب الرسمي.</p></body></html>`
+    );
+});
 
 function toEvent(req) {
   return {
